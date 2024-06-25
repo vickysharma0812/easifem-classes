@@ -6,7 +6,7 @@
 MODULE GnuPlot_Class
 USE GlobalData, ONLY: I4B, DFP, sp => REAL32, dp => REAL64, &
                       LGT
-USE BaseMethod, ONLY: TOSTRING
+USE BaseMethod, ONLY: TOSTRING, Input
 USE GridPointUtility, ONLY: Linspace
 USE ParameterList, ONLY: ParameterList_
 USE ExceptionHandler_Class, ONLY: e
@@ -24,9 +24,12 @@ CHARACTER(*), PARAMETER :: md_name = 'ogpf libray'
 CHARACTER(*), PARAMETER :: md_rev = 'Rev. 0.22 of March 9th, 2018'
 CHARACTER(*), PARAMETER :: md_lic = 'Licence: MIT'
 CHARACTER(*), PARAMETER :: gnuplot_term_type = 'wxt'
-CHARACTER(*), PARAMETER :: gnuplot_term_font = 'Times New Roman,10'
-CHARACTER(*), PARAMETER :: gnuplot_term_size = '640,480'
+CHARACTER(*), PARAMETER :: gnuplot_term_font = 'Times New Roman,8'
+CHARACTER(*), PARAMETER :: gnuplot_term_size = '680, 480'
 CHARACTER(*), PARAMETER :: gnuplot_output_filename = 'ogpf_temp_script.plt'
+
+REAL(DFP), PARAMETER :: default_paletteSize(2) = [680.0, 480.0]
+REAL(DFP), PARAMETER :: default_paletteMargin(4) = [2.0, 2.0, 2.0, 2.0]
 
 !----------------------------------------------------------------------------
 !
@@ -74,6 +77,9 @@ TYPE, EXTENDS(AbstractPlot_) :: GnuPlot_
   LOGICAL(LGT) :: hasanimation = .FALSE.
   LOGICAL(LGT) :: hasfilename = .FALSE.
   LOGICAL(LGT) :: hasfileopen = .FALSE.
+  LOGICAL(LGT) :: updatePreamble = .TRUE.
+  REAL(DFP), ALLOCATABLE :: paletteSize(:)
+  REAL(DFP), ALLOCATABLE :: paletteMargin(:)
   REAL(DFP) :: xrange(2), yrange(2), zrange(2)
   REAL(DFP) :: x2range(2), y2range(2)
   CHARACTER(8) :: plotscale
@@ -116,6 +122,8 @@ CONTAINS
   PROCEDURE, PUBLIC, PASS(obj) :: Display => obj_Display
 
   !! set methods
+  PROCEDURE, PUBLIC, PASS(obj) :: setSize => obj_setSize
+  PROCEDURE, PUBLIC, PASS(obj) :: setMargin => obj_setMargin
   PROCEDURE, PUBLIC, PASS(obj) :: cntrLevels => obj_setCntrLevels
   PROCEDURE, PUBLIC, PASS(obj) :: cbTicks => obj_setCBTicks
   PROCEDURE, PUBLIC, PASS(obj) :: pm3dOpts => obj_setPm3dOpts
@@ -239,6 +247,36 @@ INTERFACE
     CHARACTER(*), INTENT(IN) :: msg
     INTEGER(I4B), OPTIONAL, INTENT(IN) :: unitno
   END SUBROUTINE obj_Display
+END INTERFACE
+
+!----------------------------------------------------------------------------
+!                                                                 setSize
+!----------------------------------------------------------------------------
+
+!> author: Shion Shimizu
+! date:   2024-06-24
+! summary:  Set the size of the palette
+
+INTERFACE
+  MODULE SUBROUTINE obj_setSize(obj, width, height)
+    CLASS(GnuPlot_), INTENT(INOUT) :: obj
+    REAL(DFP), OPTIONAL, INTENT(IN) :: width, height
+  END SUBROUTINE obj_setSize
+END INTERFACE
+
+!----------------------------------------------------------------------------
+!                                                                 setMargin
+!----------------------------------------------------------------------------
+
+!> author: Shion Shimizu
+! date:   2024-06-24
+! summary:  Set the margin of the palette
+
+INTERFACE
+  MODULE SUBROUTINE obj_setMargin(obj, left, right, top, bottom)
+    CLASS(GnuPlot_), INTENT(INOUT) :: obj
+    REAL(DFP), OPTIONAL, INTENT(IN) :: left, right, top, bottom
+  END SUBROUTINE obj_setMargin
 END INTERFACE
 
 !----------------------------------------------------------------------------
@@ -441,6 +479,7 @@ SUBROUTINE set_options(obj, stropt)
   END IF
 
   obj%hasoptions = .TRUE.
+  obj%updatePreamble = .TRUE.
 
 END SUBROUTINE set_options
 
@@ -453,6 +492,7 @@ SUBROUTINE set_xlim(obj, rng)
   REAL(DFP), INTENT(in) :: rng(2)
   obj%hasxrange = .TRUE.
   obj%xrange = rng
+  obj%updatePreamble = .TRUE.
 
 END SUBROUTINE
 
@@ -465,6 +505,7 @@ SUBROUTINE set_ylim(obj, rng)
   REAL(DFP), INTENT(in) :: rng(2)
   obj%hasyrange = .TRUE.
   obj%yrange = rng
+  obj%updatePreamble = .TRUE.
 
 END SUBROUTINE
 
@@ -477,6 +518,7 @@ SUBROUTINE set_zlim(obj, rng)
   REAL(DFP), INTENT(in) :: rng(2)
   obj%haszrange = .TRUE.
   obj%zrange = rng
+  obj%updatePreamble = .TRUE.
 
 END SUBROUTINE
 
@@ -510,6 +552,8 @@ SUBROUTINE set_axis(obj, rng)
     RETURN
   END SELECT
 
+  obj%updatePreamble = .TRUE.
+
 END SUBROUTINE set_axis
 
 SUBROUTINE set_secondary_axis(obj, rng)
@@ -535,6 +579,8 @@ SUBROUTINE set_secondary_axis(obj, rng)
     RETURN
   END SELECT
 
+  obj%updatePreamble = .TRUE.
+
 END SUBROUTINE set_secondary_axis
 
 SUBROUTINE set_plottitle(obj, chars, textcolor, font_size, font_name, rotate)
@@ -548,7 +594,9 @@ SUBROUTINE set_plottitle(obj, chars, textcolor, font_size, font_name, rotate)
   CHARACTER(*), INTENT(in), OPTIONAL :: font_name
   INTEGER, OPTIONAL :: rotate
 
-        call obj%set_label('plot_title', chars, textcolor, font_size, font_name, rotate)
+  call obj%set_label('plot_title', chars, textcolor, font_size, font_name, rotate)
+
+  obj%updatePreamble = .TRUE.
 
 END SUBROUTINE set_plottitle
 
@@ -1808,7 +1856,7 @@ SUBROUTINE process_axes_set(axes_set, axes)
 
 END SUBROUTINE process_axes_set
 
-SUBROUTINE process_linespec(order, lsstring, lspec, axes_set)
+SUBROUTINE process_linespec(order, lsstring, lspec, axes_set, datafilepath)
   !..............................................................................
   ! process_linespec accepts the line specification and interpret it into
   ! a format to be sent to gnuplot
@@ -1818,11 +1866,14 @@ SUBROUTINE process_linespec(order, lsstring, lspec, axes_set)
   CHARACTER(*), INTENT(out) :: lsstring
   CHARACTER(*), INTENT(in), OPTIONAL :: lspec
   CHARACTER(*), INTENT(in), OPTIONAL :: axes_set
+  CHARACTER(*), OPTIONAL, INTENT(IN) :: datafilepath
 
   !local variables
   CHARACTER(4) :: axes
   CHARACTER(10) :: axes_setting
+  CHARACTER(:), ALLOCATABLE :: datafilepath0
 
+  datafilepath0 = input(default='"-"', option='"'//datafilepath//'"')
   !check the axes set
   axes_setting = ''
   IF (PRESENT(axes_set)) THEN
@@ -1836,22 +1887,22 @@ SUBROUTINE process_linespec(order, lsstring, lspec, axes_set)
   CASE (1)
     IF (PRESENT(lspec)) THEN
       IF (hastitle(lspec)) THEN
-        lsstring = 'plot "-" '//TRIM(lspec)//axes_setting
+        lsstring = 'plot '//datafilepath0//' '//TRIM(lspec)//axes_setting
       ELSE
-        lsstring = 'plot "-" notitle '//TRIM(lspec)//axes_setting
+     lsstring = 'plot '//datafilepath0//' notitle '//TRIM(lspec)//axes_setting
       END IF
     ELSE
-      lsstring = 'plot "-" notitle'//axes_setting
+      lsstring = 'plot '//datafilepath0//' notitle'//axes_setting
     END IF
   CASE default !e.g. 2, 3, 4, ...
     IF (PRESENT(lspec)) THEN
       IF (hastitle(lspec)) THEN
-        lsstring = ', "-" '//TRIM(lspec)//axes_setting
+        lsstring = ', '//datafilepath0//' '//TRIM(lspec)//axes_setting
       ELSE
-        lsstring = ', "-" notitle '//TRIM(lspec)//axes_setting
+        lsstring = ', '//datafilepath0//' notitle '//TRIM(lspec)//axes_setting
       END IF
     ELSE
-      lsstring = ', "-" notitle'//axes_setting
+      lsstring = ', '//datafilepath0//' notitle'//axes_setting
     END IF
   END SELECT
 END SUBROUTINE process_linespec
@@ -1863,6 +1914,8 @@ SUBROUTINE processcmd(obj)
   !..............................................................................
 
   CLASS(GnuPlot_) :: obj
+
+  IF (.NOT. obj%updatePreamble) RETURN
 
   ! write the plot style for data
   ! obj is used only when 3D plots (splot, cplot) is used
@@ -1877,6 +1930,13 @@ SUBROUTINE processcmd(obj)
     WRITE (obj%file_unit, '("# options")')
     WRITE (obj%file_unit, '(a)') obj%txtoptions
     WRITE (obj%file_unit, '(a)')
+  END IF
+
+  IF (ALLOCATED(obj%paletteMargin)) THEN
+   WRITE (obj%file_unit, '(a)') "set lmargin "//tostring(obj%paletteMargin(1))
+   WRITE (obj%file_unit, '(a)') "set rmargin "//tostring(obj%paletteMargin(2))
+   WRITE (obj%file_unit, '(a)') "set tmargin "//tostring(obj%paletteMargin(3))
+   WRITE (obj%file_unit, '(a)') "set bmargin "//tostring(obj%paletteMargin(4))
   END IF
 
   ! Check with plot scale: i.e linear, logx, logy, or log xy
@@ -1926,6 +1986,8 @@ SUBROUTINE processcmd(obj)
   END IF
   ! finish by new line
   WRITE (obj%file_unit, '(a)') ! emptyline
+
+  obj%updatePreamble = .FALSE.
 
 END SUBROUTINE processcmd
 
@@ -2154,6 +2216,7 @@ SUBROUTINE create_outputfile(obj)
 
   ! Rev 0.18
   CLASS(GnuPlot_), INTENT(inout) :: obj
+  CHARACTER(:), ALLOCATABLE :: GPTermSize0
 
   IF (obj%hasfileopen) THEN
     ! there is nothing to do, file has been already open!
@@ -2190,9 +2253,17 @@ SUBROUTINE create_outputfile(obj)
   WRITE (obj%file_unit, '(a)') ! emptyline
 
   ! write the global settings
+
+  IF (ALLOCATED(obj%paletteSize)) THEN
+    GPTermSize0 = tostring(obj%paletteSize(1))//',' &
+                  //tostring(obj%paletteSize(2))
+  ELSE
+    GPTermSize0 = gnuplot_term_size
+  END IF
+
   WRITE (obj%file_unit, '(a)') '# gnuplot global setting'
   WRITE (unit=obj%file_unit, fmt='(a)') 'set term '//gnuplot_term_type// &
-    ' size '//gnuplot_term_size//' enhanced font "'// &
+    ' size '//GPTermSize0//' enhanced font "'// &
     gnuplot_term_font//'"'// &
     ' title "'//md_name//': '//md_rev//'"' ! library name and version
 

@@ -16,8 +16,7 @@
 !
 
 SUBMODULE(PLPlot_Class) ScatterMethods
-USE BaseMethod
-USE EasyPlplot
+USE EasyPlplot, ONLY: Scatter
 IMPLICIT NONE
 CONTAINS
 
@@ -26,14 +25,14 @@ CONTAINS
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Scatter
-  CALL Scatter( &
-    & x=x, &
-    & y=y, &
-    & c=c, &
-    & s=s, &
-    & markColor=pointColor, &
-    & markStyle=pointType, &
-    & markSize=pointSize )
+CALL Scatter(x=x, &
+             y=y, &
+             c=c, &
+             s=s, &
+             markColor=pointColor, &
+             markStyle=pointType, &
+             markSize=pointSize)
 END PROCEDURE plot_Scatter
 
 END SUBMODULE ScatterMethods
+

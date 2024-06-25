@@ -16,8 +16,7 @@
 !
 
 SUBMODULE(PLPlot_Class) QuiverMethods
-USE BaseMethod
-USE EasyPlplot
+USE EasyPlplot, ONLY: Quiver
 IMPLICIT NONE
 CONTAINS
 
@@ -26,17 +25,17 @@ CONTAINS
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Quiver
-  CALL Quiver( &
-    & x=x, &
-    & y=y, &
-    & u=u, &
-    & v=v, &
-    & s=s, &
-    & c=c, &
-    & scaling=scaling, &
-    & lineColor=lineColor, &
-    & lineStyle=lineType, &
-    & lineWidth=lineWidth )
+CALL Quiver(x=x, &
+            y=y, &
+            u=u, &
+            v=v, &
+            s=s, &
+            c=c, &
+            scaling=scaling, &
+            lineColor=lineColor, &
+            lineStyle=lineType, &
+            lineWidth=lineWidth)
 END PROCEDURE plot_Quiver
 
 END SUBMODULE QuiverMethods
+

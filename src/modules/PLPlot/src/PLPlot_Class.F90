@@ -23,6 +23,9 @@ USE ExceptionHandler_Class, ONLY: e
 USE ParameterList, ONLY: ParameterList_
 USE AbstractPlot_Class
 USE EasyPlplot, ONLY: binData
+#ifdef USE_PLPLOT
+USE PLPLOT
+#endif
 IMPLICIT NONE
 PRIVATE
 PUBLIC :: binData
@@ -608,7 +611,7 @@ END INTERFACE
 
 INTERFACE
 MODULE SUBROUTINE plot_Hist(obj, d, N, db, relWidth, fillColor, fillPattern, &
-                                              & lineColor, lineWidth)
+                                                & lineColor, lineWidth)
     CLASS(PLPlot_), INTENT(INOUT) :: obj
   !!
     REAL(DFP), INTENT(IN) :: d(:)

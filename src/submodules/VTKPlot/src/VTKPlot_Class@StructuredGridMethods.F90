@@ -16,7 +16,7 @@
 !
 
 SUBMODULE(VTKPlot_Class) StructuredGridMethods
-USE BaseMethod
+USE BaseMethod, ONLY: MeshGrid
 IMPLICIT NONE
 CONTAINS
 

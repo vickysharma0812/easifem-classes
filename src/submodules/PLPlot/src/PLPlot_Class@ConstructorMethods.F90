@@ -16,7 +16,7 @@
 !
 
 SUBMODULE(PLPlot_Class) ConstructorMethods
-USE BaseMethod
+USE BaseMethod, ONLY: Display, getExtension, LowerCase
 IMPLICIT NONE
 CONTAINS
 
@@ -61,7 +61,7 @@ CASE ("eps"); ans = "epscairo"
 CASE ("svg"); ans = "svg"
 CASE ("jpeg", "jpg"); ans = "pngcairo"
 END SELECT
-#else 
+#else
 
 SELECT CASE (TRIM(LowerCase(extn%chars())))
 CASE ("pdf"); ans = "pdf"

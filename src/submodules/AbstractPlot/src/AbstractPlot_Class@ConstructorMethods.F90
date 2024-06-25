@@ -16,7 +16,6 @@
 !
 
 SUBMODULE(AbstractPlot_Class) ConstructorMethods
-USE BaseMethod
 IMPLICIT NONE
 CONTAINS
 
@@ -25,9 +24,9 @@ CONTAINS
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Initiate
-  CHARACTER( LEN = * ), PARAMETER :: myName = "plot_Initiate"
-  CALL e%raiseError(modName //'::'//myName// ' - '// &
-    & 'NOT IMPLEMENTED')
+CHARACTER(LEN=*), PARAMETER :: myName = "plot_Initiate"
+CALL e%raiseError(modName//'::'//myName//' - '// &
+  & 'NOT IMPLEMENTED')
 END PROCEDURE plot_Initiate
 
 !----------------------------------------------------------------------------
@@ -35,9 +34,9 @@ END PROCEDURE plot_Initiate
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Deallocate
-  CHARACTER( LEN = * ), PARAMETER :: myName = "plot_Deallocate"
-  CALL e%raiseError(modName //'::'//myName// ' - '// &
-    & 'NOT IMPLEMENTED')
+CHARACTER(LEN=*), PARAMETER :: myName = "plot_Deallocate"
+CALL e%raiseError(modName//'::'//myName//' - '// &
+  & 'NOT IMPLEMENTED')
 END PROCEDURE plot_Deallocate
 
 !----------------------------------------------------------------------------
@@ -45,9 +44,10 @@ END PROCEDURE plot_Deallocate
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Display
-  CHARACTER( LEN = * ), PARAMETER :: myName = "plot_Display"
-  CALL e%raiseError(modName //'::'//myName// ' - '// &
-    & 'NOT IMPLEMENTED')
+CHARACTER(LEN=*), PARAMETER :: myName = "plot_Display"
+CALL e%raiseError(modName//'::'//myName//' - '// &
+  & 'NOT IMPLEMENTED')
 END PROCEDURE plot_Display
 
 END SUBMODULE ConstructorMethods
+

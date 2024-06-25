@@ -16,8 +16,8 @@
 !
 
 SUBMODULE(PLPlot_Class) LinePlotMethods
-USE BaseMethod
-USE EasyPlplot
+USE BaseMethod, ONLY: INPUT, getExtension, TOSTRING
+USE EasyPlplot, ONLY: Plot, Plot3, errorbar
 IMPLICIT NONE
 CONTAINS
 
@@ -202,37 +202,36 @@ DO ii = 1, SIZE(symbols)
   symbols(ii) = ""
 END DO
   !!
-CALL PLLEGEND( &
-  & legend_width, &
-  & legend_height, &
-  & PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, &
-  & 0, &
-  & 0.0_DFP, &
-  & 0.0_DFP, &
-  & 0.10_DFP, &
-  & 15, &
-  & 0, &
-  & 1, &
-  & 0, &
-  & 0, &
-  & opt_array, &
-  & 1.0_DFP, &
-  & 1.0_DFP, &
-  & 2.0_DFP, &
-  & 1.0_DFP, &
-  & text_colors, &
-  & legend_text, &
-  & box_colors, &
-  & box_patterns, &
-  & box_scales, &
-  & box_line_widths, &
-  & line_colors, &
-  & line_styles, &
-  & line_widths, &
-  & symbol_colors, &
-  & symbol_scales, &
-  & symbol_numbers, &
-  & symbols)
+CALL PLLEGEND(legend_width, &
+              legend_height, &
+              PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, &
+              0, &
+              0.0_DFP, &
+              0.0_DFP, &
+              0.10_DFP, &
+              15, &
+              0, &
+              1, &
+              0, &
+              0, &
+              opt_array, &
+              1.0_DFP, &
+              1.0_DFP, &
+              2.0_DFP, &
+              1.0_DFP, &
+              text_colors, &
+              legend_text, &
+              box_colors, &
+              box_patterns, &
+              box_scales, &
+              box_line_widths, &
+              line_colors, &
+              line_styles, &
+              line_widths, &
+              symbol_colors, &
+              symbol_scales, &
+              symbol_numbers, &
+              symbols)
 CALL PLCOL0(0)
 CALL PLEND
 #endif
@@ -243,15 +242,14 @@ END PROCEDURE line_plot_x1y2
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Plot2D
-CALL Plot( &
-  & x=x, &
-  & y=y, &
-  & lineColor=lineColor, &
-  & lineStyle=lineType, &
-  & lineWidth=lineWidth, &
-  & markColor=pointColor, &
-  & markStyle=pointType, &
-  & markSize=pointSize)
+CALL Plot(x=x, &
+          y=y, &
+          lineColor=lineColor, &
+          lineStyle=lineType, &
+          lineWidth=lineWidth, &
+          markColor=pointColor, &
+          markStyle=pointType, &
+          markSize=pointSize)
 END PROCEDURE plot_Plot2D
 
 !----------------------------------------------------------------------------
@@ -259,14 +257,13 @@ END PROCEDURE plot_Plot2D
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Errorbar
-CALL errorbar(&
-  & x=x, &
-  & y=y, &
-  & xerr=xerr, &
-  & yerr=yerr, &
-  & lineColor=lineColor, &
-  & lineStyle=lineType, &
-  & lineWidth=lineWidth)
+CALL errorbar(x=x, &
+              y=y, &
+              xerr=xerr, &
+              yerr=yerr, &
+              lineColor=lineColor, &
+              lineStyle=lineType, &
+              lineWidth=lineWidth)
 END PROCEDURE plot_Errorbar
 
 !----------------------------------------------------------------------------
@@ -274,16 +271,15 @@ END PROCEDURE plot_Errorbar
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Plot3D
-CALL Plot3( &
-  & x=x, &
-  & y=y, &
-  & z=z, &
-  & lineColor=lineColor, &
-  & lineStyle=lineType, &
-  & lineWidth=lineWidth, &
-  & markColor=pointColor, &
-  & markStyle=pointType, &
-  & markSize=pointSize)
+CALL Plot3(x=x, &
+           y=y, &
+           z=z, &
+           lineColor=lineColor, &
+           lineStyle=lineType, &
+           lineWidth=lineWidth, &
+           markColor=pointColor, &
+           markStyle=pointType, &
+           markSize=pointSize)
 END PROCEDURE plot_Plot3D
 
 END SUBMODULE LinePlotMethods

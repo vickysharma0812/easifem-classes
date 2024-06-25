@@ -16,8 +16,9 @@
 !
 
 SUBMODULE(PLPlot_Class) SetMethods
-USE BaseMethod
-USE EasyPlplot
+USE EasyPlplot, ONLY: xlim, ylim, xylim, xyzlim, xlabel, ylabel, &
+                      box, title, labels, xticks, yticks, ticks, &
+                      legend, setup
 IMPLICIT NONE
 CONTAINS
 
@@ -26,7 +27,7 @@ CONTAINS
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXlim
-  CALL xlim(xl=xmin, xh=xmax)
+CALL xlim(xl=xmin, xh=xmax)
 END PROCEDURE plot_SetXlim
 
 !----------------------------------------------------------------------------
@@ -34,7 +35,7 @@ END PROCEDURE plot_SetXlim
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetYlim
-  CALL ylim(yl=ymin, yh=ymax)
+CALL ylim(yl=ymin, yh=ymax)
 END PROCEDURE plot_SetYlim
 
 !----------------------------------------------------------------------------
@@ -42,7 +43,7 @@ END PROCEDURE plot_SetYlim
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXYlim
-  CALL xylim(xb=x, yb=y)
+CALL xylim(xb=x, yb=y)
 END PROCEDURE plot_SetXYlim
 
 !----------------------------------------------------------------------------
@@ -50,8 +51,8 @@ END PROCEDURE plot_SetXYlim
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXYZlim
-  CALL xyzlim(xb=x, yb=y, zb=z, altitude=altitude, &
-    & azimuth=azimuth, zoom=zoom)
+CALL xyzlim(xb=x, yb=y, zb=z, altitude=altitude, &
+            azimuth=azimuth, zoom=zoom)
 END PROCEDURE plot_SetXYZlim
 
 !----------------------------------------------------------------------------
@@ -59,7 +60,7 @@ END PROCEDURE plot_SetXYZlim
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXLabel
-  CALL xlabel(label=label, color=color)
+CALL xlabel(label=label, color=color)
 END PROCEDURE plot_SetXLabel
 
 !----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ END PROCEDURE plot_SetXLabel
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetYLabel
-  CALL ylabel(label=label, color=color)
+CALL ylabel(label=label, color=color)
 END PROCEDURE plot_SetYLabel
 
 !----------------------------------------------------------------------------
@@ -75,8 +76,8 @@ END PROCEDURE plot_SetYLabel
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXYLabel
-  CALL obj%SetXLabel( label=xLabel, color=color )
-  CALL obj%SetYLabel( label=yLabel, color=color )
+CALL obj%SetXLabel(label=xLabel, color=color)
+CALL obj%SetYLabel(label=yLabel, color=color)
 END PROCEDURE plot_SetXYLabel
 
 !----------------------------------------------------------------------------
@@ -84,7 +85,7 @@ END PROCEDURE plot_SetXYLabel
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXYZLabel
-  CALL box(xLabel=xLabel, ylabel=yLabel, zLabel=zLabel, color=color)
+CALL box(xLabel=xLabel, ylabel=yLabel, zLabel=zLabel, color=color)
 END PROCEDURE plot_SetXYZLabel
 
 !----------------------------------------------------------------------------
@@ -92,7 +93,7 @@ END PROCEDURE plot_SetXYZLabel
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetTitle
-  CALL title(label=label, color=color)
+CALL title(label=label, color=color)
 END PROCEDURE plot_SetTitle
 
 !----------------------------------------------------------------------------
@@ -100,8 +101,8 @@ END PROCEDURE plot_SetTitle
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetLabels
-  CALL labels(xLabel=xLabel, yLabel=yLabel, &
-    & plotLabel=title, color=color )
+CALL labels(xLabel=xLabel, yLabel=yLabel, &
+            plotLabel=title, color=color)
 END PROCEDURE plot_SetLabels
 
 !----------------------------------------------------------------------------
@@ -109,9 +110,9 @@ END PROCEDURE plot_SetLabels
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetXticks
-  CALL xticks(d=d, logScale=isLogScale, &
-    & primary=isPrimary, secondary=isSecondary, &
-    & color=color, lineWidth=lineWidth)
+CALL xticks(d=d, logScale=isLogScale, &
+            primary=isPrimary, secondary=isSecondary, &
+            color=color, lineWidth=lineWidth)
 END PROCEDURE plot_SetXticks
 
 !----------------------------------------------------------------------------
@@ -119,9 +120,9 @@ END PROCEDURE plot_SetXticks
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetYticks
-  CALL yticks(d=d, logScale=isLogScale, &
-    & primary=isPrimary, secondary=isSecondary, &
-    & color=color, lineWidth=lineWidth)
+CALL yticks(d=d, logScale=isLogScale, &
+            primary=isPrimary, secondary=isSecondary, &
+            color=color, lineWidth=lineWidth)
 END PROCEDURE plot_SetYticks
 
 !----------------------------------------------------------------------------
@@ -129,8 +130,8 @@ END PROCEDURE plot_SetYticks
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetTicks
-  CALL ticks(dx=dx, dy=dy, logx=isLogX, logy=isLogY, &
-    & color=color, lineWidth=lineWidth)
+CALL ticks(dx=dx, dy=dy, logx=isLogX, logy=isLogY, &
+           color=color, lineWidth=lineWidth)
 END PROCEDURE plot_SetTicks
 
 !----------------------------------------------------------------------------
@@ -138,8 +139,8 @@ END PROCEDURE plot_SetTicks
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_SetLegend
-  CALL legend(corner=corner, series=series, lineWidths=lineWidths, &
-  & markScales=pointScales, markCounts=pointCounts, ncol=ncol )
+CALL legend(corner=corner, series=series, lineWidths=lineWidths, &
+            markScales=pointScales, markCounts=pointCounts, ncol=ncol)
 END PROCEDURE plot_SetLegend
 
 !----------------------------------------------------------------------------
@@ -147,15 +148,15 @@ END PROCEDURE plot_SetLegend
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE plot_Set
-  CALL setup( &
-    & device=device, &
-    & fileName=fileName, &
-    & fontScaling=fontScaling, &
-    & whiteOnBlack=isWhiteOnBlack, &
-    & transparent=isTransparent, &
-    & colormap=colormap, &
-    & figSize=figSize, &
-    & isFileFamily=isFileFamily )
+CALL setup(device=device, &
+           fileName=fileName, &
+           fontScaling=fontScaling, &
+           whiteOnBlack=isWhiteOnBlack, &
+           transparent=isTransparent, &
+           colormap=colormap, &
+           figSize=figSize, &
+           isFileFamily=isFileFamily)
 END PROCEDURE plot_Set
 
 END SUBMODULE SetMethods
+

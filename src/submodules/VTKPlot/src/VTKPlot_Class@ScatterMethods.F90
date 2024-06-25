@@ -16,7 +16,7 @@
 !
 
 SUBMODULE(VTKPlot_Class) ScatterMethods
-USE BaseMethod
+USE BaseMethod, ONLY: TOSTRING, Zeros
 IMPLICIT NONE
 CONTAINS
 
