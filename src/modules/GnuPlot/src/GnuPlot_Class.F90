@@ -122,8 +122,8 @@ CONTAINS
   PROCEDURE, PUBLIC, PASS(obj) :: Display => obj_Display
 
   !! set methods
-  PROCEDURE, PUBLIC, PASS(obj) :: setSize => obj_setSize
-  PROCEDURE, PUBLIC, PASS(obj) :: setMargin => obj_setMargin
+  ! PROCEDURE, PUBLIC, PASS(obj) :: setSize => obj_setSize
+  ! PROCEDURE, PUBLIC, PASS(obj) :: setMargin => obj_setMargin
   PROCEDURE, PUBLIC, PASS(obj) :: cntrLevels => obj_setCntrLevels
   PROCEDURE, PUBLIC, PASS(obj) :: cbTicks => obj_setCBTicks
   PROCEDURE, PUBLIC, PASS(obj) :: pm3dOpts => obj_setPm3dOpts

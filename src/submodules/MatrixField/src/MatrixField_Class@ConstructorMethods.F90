@@ -328,6 +328,7 @@ ierr = param%get(key=myPrefix//"/timeCompo", VALUE=timeCompo(1))
 
 ! storage format
 storageFMT = FMT_NODES
+! storageFMT = FMT_DOF
 tNodes = dom%getTotalNodes()
 
 ! make [[DOF_]]
@@ -499,7 +500,8 @@ IF (param%isPresent(key=myPrefix//"/timeCompo")) THEN
 END IF
 
 ! storage format
-storageFMT = FMT_NODES
+! storageFMT = FMT_NODES
+storageFMT = FMT_DOF
 
 ! domains
 ALLOCATE (obj%domains(tvar))

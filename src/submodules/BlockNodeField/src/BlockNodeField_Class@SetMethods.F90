@@ -773,8 +773,10 @@ IF (.NOT. VALUE%isInitiated) THEN
   & 'AbstractNodeField_ ::value is not initiated')
 END IF
 
-tsize = obj%dof.tNodes. [ivar, idof]
-tsize_value = VALUE%dof.tNodes. [ivar_value, idof_value]
+indx1 = obj%dof.dofstartindex.ivar
+tsize = obj%dof.tNodes.indx1 + idof - 1
+indx1 = VALUE%dof.dofstartindex.ivar_value
+tsize_value = VALUE%dof.tNodes.indx1 + idof_value - 1
 IF (tsize .NE. tsize_value) THEN
   CALL e%raiseError(modName//'::'//myName//' - '// &
     & 'tSize of obj(ivar, idof) is equal to value(ivar_value, idof_value)')
