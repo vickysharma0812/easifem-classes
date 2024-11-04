@@ -386,6 +386,14 @@ TYPE :: ElastoDynamics1DSTFEM_
   !! boolean to decide scale error norms by
   !! the size of space span and time span
 
+  LOGICAL(LGT) :: showTime = .FALSE.
+
+  TYPE(TxtFile_) :: showTimeFile
+  !! File which keeps the time statics of the kernel (performance related)
+  !! This file is created when showTime is set to true.
+  !! The name of this file will be
+  !! outputPath / name + _time_stat.csv
+
 CONTAINS
 
   PROCEDURE, PUBLIC, PASS(obj) :: Initiate => obj_Initiate

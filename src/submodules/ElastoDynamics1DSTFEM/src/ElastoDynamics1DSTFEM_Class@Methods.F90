@@ -89,6 +89,7 @@ USE RealVector_Method, ONLY: RealVector_Initiate => Initiate, &
 
 USE LagrangePolynomialUtility, ONLY: InterpolationPoint_
 USE InputUtility
+USE CPUTime_Class
 
 IMPLICIT NONE
 
@@ -314,6 +315,7 @@ REAL(DFP), ALLOCATABLE :: temprealvec(:)
 TYPE(toml_table), POINTER :: node
 TYPE(toml_array), POINTER :: array
 LOGICAL(LGT), ALLOCATABLE :: tempboolvec(:)
+CHARACTER(:), ALLOCATABLE :: temp_str
 
 #ifdef DEBUG_VER
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
@@ -796,6 +798,20 @@ END IF
 node => NULL()
 
 CALL ReferenceImportFromToml(obj, table)
+
+CALL toml_get(table, "showTime", obj%showTime, .FALSE., &
+              stat=stat, origin=origin)
+
+IF (obj%showTime) THEN
+  temp_str = obj%result_dir//"/"//obj%filename//"_time_stat.csv"
+  CALL obj%showTimeFile%Initiate(filename=temp_str,  &
+    & status="REPLACE", action="WRITE", separator=",")
+  CALL obj%showTimeFile%OPEN()
+  temp_str = ""
+  temp_str = "currentTimeStep,currentTime,method,cpu-time"
+!$ temp_str = temp_str//",wtime"
+  CALL obj%showTimeFile%WRITE(val=temp_str)
+END IF
 
 #ifdef DEBUG_VER
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
@@ -2791,11 +2807,12 @@ END PROCEDURE obj_SetInitialDisplacement
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE obj_Solve
-#ifdef DEBUG_VER
 CHARACTER(*), PARAMETER :: myName = "obj_Solve()"
-#endif
 
 INTEGER(I4B) :: n, solverName
+TYPE(CPUTime_) :: TypeCPUTime
+
+IF (obj%showTime) CALL TypeCPUTime%SetStartTime()
 
 #ifdef DEBUG_VER
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
@@ -2815,6 +2832,13 @@ CALL CSRMatrix_LinSolve(obj=obj%tanmat, sol=obj%sol%val(1:n), &
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
                         '[END] ')
 #endif
+
+IF (obj%showTime) THEN
+  CALL TypeCPUTime%SetEndTime()
+  CALL obj%showTimeFile%WRITE(val=TypeCPUTime%GetStringForKernelLog( &
+  & currentTime=obj%currentTime, currentTimeStep=obj%currentTimeStep, &
+  & methodName=myName))
+END IF
 
 END PROCEDURE obj_Solve
 
@@ -3393,11 +3417,8 @@ CHARACTER(*), PARAMETER :: myName = "obj_WriteErrorData()"
 #endif
 
 REAL(DFP) :: xlim(2), ylim(2)
-
 REAL(DFP), ALLOCATABLE :: tmpVec(:), timeData(:)
-
 INTEGER(I4B) :: ii
-
 CHARACTER(:), ALLOCATABLE :: filename_disp, filename_vel, filename_acc, &
                              aline
 LOGICAL(LGT) :: abool1, abool2
@@ -3563,12 +3584,12 @@ END PROCEDURE obj_WriteErrorData
 !----------------------------------------------------------------------------
 
 MODULE PROCEDURE obj_Run
-#ifdef DEBUG_VER
 CHARACTER(*), PARAMETER :: myName = "obj_Run()"
-#endif
-
+TYPE(CPUTime_) :: TypeCPUTime
 INTEGER(I4B) :: ielTime
 REAL(DFP) :: x1, tij(1, 2)
+
+IF (obj%showTime) CALL TypeCPUTime%SetStartTime()
 
 #ifdef DEBUG_VER
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
@@ -3603,6 +3624,13 @@ CALL obj%WriteErrorData()
 CALL e%RaiseInformation(modName//'::'//myName//' - '// &
                         '[END] ')
 #endif
+
+IF (obj%showTime) THEN
+  CALL TypeCPUTime%SetEndTime()
+  CALL obj%showTimeFile%WRITE(val=TypeCPUTime%GetStringForKernelLog( &
+  & currentTime=obj%currentTime, currentTimeStep=obj%currentTimeStep, &
+  & methodName=myName))
+END IF
 
 END PROCEDURE obj_Run
 
